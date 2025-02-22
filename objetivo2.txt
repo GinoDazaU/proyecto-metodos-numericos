@@ -1,0 +1,53 @@
+%% Definir los años y datos iniciales
+anios = [1:1:15]';
+conejos = [30, 47.2, 70.2, 77.4, 36.3, 20.6, 18.1, 21.4, 16.0, 25.4, 27.1, 40.3, 57, 76.6, 53.2]';
+linces = [4, 6.1, 9.8, 35.2, 59.4, 41.7, 29.7, 16.5, 8.3, 9.1, 7.4, 8, 12.3, 19.5, 45.7]';
+
+%% Valores iniciales
+a = 1;  % Año inicial
+b = 15; % Año final
+x0 = 40; % Conejos iniciales
+y0 = 5;  % Linces iniciales
+h = 1;   % Paso de integración
+
+%% Crear combinaciones de parámetros a probar
+parametros = [
+    0.4,  0.018,  0.023,  0.8;  % Caso 1: Valores base
+    0.4,  0.025,  0.023,  0.8;  % Caso 2: Mayor depredación (beta aumenta)
+    0.4,  0.018,  0.023,  0.6;  % Caso 3: Menor mortalidad de linces (gamma baja)
+    0.6,  0.018,  0.023,  0.8;  % Caso 4: Mayor crecimiento de presas (alpha sube)
+    0.5,  0.020,  0.025,  0.7   % Caso 5: Variaciones combinadas
+];
+
+%% Simulación para cada conjunto de parámetros
+for i = 1:size(parametros,1)
+    % Extraer valores de parámetros para el caso actual
+    alpha = parametros(i,1);
+    beta = parametros(i,2);
+    delta = parametros(i,3);
+    gamma = parametros(i,4);
+    
+    % Definir funciones del sistema con los parámetros actuales
+    f = @(t, x, y) x * (alpha - beta * y); % Ecuación para los conejos
+    g = @(t, x, y) y * (delta * x - gamma); % Ecuación para los linces
+
+    % Aplicar el método RK4
+    z = RK4_sist(f, g, a, b, x0, y0, h);
+
+    % Extraer resultados
+    t = z(:, 1);
+    x = z(:, 12);
+    y = z(:, 13);
+
+    % Graficar la evolución poblacional
+    figure;
+    hold on;
+    plot(t, x, 'b-', 'LineWidth', 1.5); % Conejos
+    plot(t, y, 'r-', 'LineWidth', 1.5); % Linces
+    title(['Evolución Poblacional - Caso ', num2str(i)]);
+    xlabel('Tiempo (años)');
+    ylabel('Población (miles)');
+    legend('Presas (Conejos)', 'Depredadores (Linces)');
+    grid on;
+    hold off;
+end
