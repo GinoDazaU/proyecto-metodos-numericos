@@ -1,0 +1,29 @@
+function [z] = RK4_sist(f, g, a, b, x0, y0, h)
+    t = [a:h:b]';  % Vector de tiempos
+    n = (b - a) / h; % Número de pasos
+    z = []; % Matriz de resultados
+
+    for k = 1:n+1
+        k1x = f(t(k), x0, y0);
+        k1y = g(t(k), x0, y0);
+        
+        k2x = f(t(k) + h/2, x0 + (h/2) * k1x, y0 + (h/2) * k1y);
+        k2y = g(t(k) + h/2, x0 + (h/2) * k1x, y0 + (h/2) * k1y);
+        
+        k3x = f(t(k) + h/2, x0 + (h/2) * k2x, y0 + (h/2) * k2y);
+        k3y = g(t(k) + h/2, x0 + (h/2) * k2x, y0 + (h/2) * k2y);
+        
+        k4x = f(t(k) + h, x0 + h * k3x, y0 + h * k3y);
+        k4y = g(t(k) + h, x0 + h * k3x, y0 + h * k3y);
+        
+        x1 = x0 + (h/6) * (k1x + 2*k2x + 2*k3x + k4x);
+        y1 = y0 + (h/6) * (k1y + 2*k2y + 2*k3y + k4y);
+        
+        % Guardar valores en la matriz de resultados
+        z = [z; t(k), x0, y0];
+        
+        % Actualizar valores para la siguiente iteración
+        x0 = x1;
+        y0 = y1;
+    end
+end
