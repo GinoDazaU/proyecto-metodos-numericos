@@ -1,0 +1,29 @@
+%% Datos de la tabla (en miles)
+anos = [1:1:15]'
+conejos = [30, 47.2, 70.2, 77.4, 36.3, 20.6, 18.1, 21.4, 16.0, 25.4, 27.1, 40.3, 57, 76.6, 53.2]';
+linces = [4, 6.1, 9.8, 35.2, 59.4, 41.7, 29.7, 16.5, 8.3, 9.1, 7.4, 8, 12.3, 19.5, 45.7]';
+
+%% Definir funciones del sistema presa-depredador
+f = @(t, x, y) x * (0.5 - 0.019 * y); % Ecuación para los conejos
+g = @(t, x, y) y * (0.023 * x - 0.8); % Ecuación para los linces
+
+%% Graficas
+data = [conejos, linces];
+corrplot(data, 'varNames', {'Conejos', 'Linces'});
+title('Matriz de correlación entre conejos y linces')
+figure;
+boxplot([conejos, linces], 'Labels', {'Conejos', 'Linces'});
+ylabel('Población (miles)');
+title('Distribución de las poblaciones de conejos y linces (1900-1914)');
+grid on;
+
+figure;
+plot(anos, conejos, '-o', 'LineWidth', 2, 'MarkerSize', 6);
+hold on;
+plot(anos, linces, '-s', 'LineWidth', 2, 'MarkerSize', 6);
+hold off;
+xlabel('Año');
+ylabel('Población (miles)');
+title('Evolución de las poblaciones de conejos y linces (1900-1914)');
+legend({'Conejos', 'Linces'}, 'Location', 'NorthEast');
+grid on;
