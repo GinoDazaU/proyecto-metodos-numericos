@@ -1,0 +1,99 @@
+%% Datos de la tabla (en miles)
+anos = [1:1:15]'
+conejos = [30, 47.2, 70.2, 77.4, 36.3, 20.6, 18.1, 21.4, 16.0, 25.4, 27.1, 40.3, 57, 76.6, 53.2]';
+linces = [4, 6.1, 9.8, 35.2, 59.4, 41.7, 29.7, 16.5, 8.3, 9.1, 7.4, 8, 12.3, 19.5, 45.7]';
+
+%% Definir funciones del sistema presa-depredador
+f = @(t, x, y) x * (0.5 - 0.019 * y); % Ecuación para los conejos
+g = @(t, x, y) y * (0.023 * x - 0.8); % Ecuación para los linces
+
+%% Valores iniciales
+a = 1; % Año inicial
+b = 15; % Año final
+x0 = 40;  % Conejos iniciales (en miles)
+y0 = 5;   % Linces iniciales (en miles)
+h = 1;    % Paso de integración (1 año)
+
+%% Llamar a la función RK4
+z = RK4_sist(f, g, a, b, x0, y0, h)
+
+%% Extraer resultados
+t = z(:, 1);
+x = z(:, 2);
+y = z(:, 3);
+
+
+% Error absoluto
+error_x_a = abs(conejos - x);
+error_y_a = abs(linces - y);
+
+% Cálculo del error relativo
+error_x_r = abs((conejos - x) ./ conejos);
+error_y_r = abs((linces - y) ./ linces);
+
+% Cálculo del error relativo porcentual
+error_x_rp = abs((conejos - x) ./ conejos) * 100;
+error_y_rp = abs((linces - y) ./ linces) * 100;
+
+% Crear tabla con los errores
+E = table(anos, conejos, x, error_x_a, error_x_r, error_x_rp, ...
+                linces, y, error_y_a, error_y_r, error_y_rp, ...
+                'VariableNames', {'Año', 'Conejos_Real', 'Conejos_RK4', ...
+                                  'Error_Abs_Conejos', 'Error_Rel_Conejos', 'Error_Rel_Porc_Conejos', ...
+                                  'Linces_Real', 'Linces_RK4', ...
+                                  'Error_Abs_Linces', 'Error_Rel_Linces', 'Error_Rel_Porc_Linces'});
+
+E
+%% Bondad del RK4
+% Cálculo de R^2 para Conejos
+SSE_x = sum((conejos - x).^2);   
+SST_x = sum((conejos - mean(conejos)).^2); 
+R2_x = 1 - (SSE_x / SST_x)
+
+% Cálculo de R^2 para Linces
+SSE_y = sum((linces - y).^2);
+SST_y = sum((linces - mean(linces)).^2);
+R2_y = 1 - (SSE_y / SST_y)
+
+%% Graficar los resultados
+figure;
+plot(anos, conejos, 'bo-', 'LineWidth', 2, 'MarkerSize', 8, 'DisplayName', 'Datos Conejos');
+hold on;
+plot(anos, linces, 'ro-', 'LineWidth', 2, 'MarkerSize', 8, 'DisplayName', 'Datos Linces');
+plot(t, x, 'b--', 'LineWidth', 2, 'DisplayName', 'RK4 Conejos');
+plot(t, y, 'r--', 'LineWidth', 2, 'DisplayName', 'RK4 Linces');
+xlabel('Año');
+ylabel('Población (miles)');
+legend;
+title('Dinámica Presa-Depredador (Conejos vs Linces) con RK4');
+grid on;
+
+function [z] = RK4_sist(f, g, a, b, x0, y0, h)
+    t = [a:h:b]';  % Vector de tiempos
+    n = (b - a) / h; % Número de pasos
+    z = []; % Matriz de resultados
+
+    for k = 1:n+1
+        k1x = f(t(k), x0, y0);
+        k1y = g(t(k), x0, y0);
+        
+        k2x = f(t(k) + h/2, x0 + (h/2) * k1x, y0 + (h/2) * k1y);
+        k2y = g(t(k) + h/2, x0 + (h/2) * k1x, y0 + (h/2) * k1y);
+        
+        k3x = f(t(k) + h/2, x0 + (h/2) * k2x, y0 + (h/2) * k2y);
+        k3y = g(t(k) + h/2, x0 + (h/2) * k2x, y0 + (h/2) * k2y);
+        
+        k4x = f(t(k) + h, x0 + h * k3x, y0 + h * k3y);
+        k4y = g(t(k) + h, x0 + h * k3x, y0 + h * k3y);
+        
+        x1 = x0 + (h/6) * (k1x + 2*k2x + 2*k3x + k4x);
+        y1 = y0 + (h/6) * (k1y + 2*k2y + 2*k3y + k4y);
+        
+        % Guardar valores en la matriz de resultados
+        z = [z; t(k), x0, y0];
+        
+        % Actualizar valores para la siguiente iteración
+        x0 = x1;
+        y0 = y1;
+    end
+end
