@@ -4,11 +4,11 @@ conejos = [30, 47.2, 70.2, 77.4, 36.3, 20.6, 18.1, 21.4, 16.0, 25.4, 27.1, 40.3,
 linces = [4, 6.1, 9.8, 35.2, 59.4, 41.7, 29.7, 16.5, 8.3, 9.1, 7.4, 8, 12.3, 19.5, 45.7]';
 
 %% Valores iniciales
-a = 1;  % Año inicial
-b = 15; % Año final
+a = 1; 
+b = 15;
 x0 = 40; % Conejos iniciales
 y0 = 5;  % Linces iniciales
-h = 1;   % Paso de integración
+h = 1;
 
 %% Crear combinaciones de parámetros a probar
 parametros = [
@@ -36,8 +36,8 @@ for i = 1:size(parametros,1)
 
     % Extraer resultados
     t = z(:, 1);
-    x = z(:, 12);
-    y = z(:, 13);
+    x = z(:, 2);
+    y = z(:, 3);
 
     % Graficar la evolución poblacional
     figure;
