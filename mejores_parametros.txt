@@ -1,0 +1,78 @@
+%% Definir los años y datos reales
+anios = [1:1:15]';
+conejos = [30, 47.2, 70.2, 77.4, 36.3, 20.6, 18.1, 21.4, 16.0, 25.4, 27.1, 40.3, 57, 76.6, 53.2]';
+linces = [4, 6.1, 9.8, 35.2, 59.4, 41.7, 29.7, 16.5, 8.3, 9.1, 7.4, 8, 12.3, 19.5, 45.7]';
+
+%% Valores iniciales
+a = 1;  % Año inicial
+b = 15; % Año final
+x0 = 40; % Conejos iniciales
+y0 = 5;  % Linces iniciales
+h = 1;   % Paso de integración
+
+%% Rango de búsqueda de parámetros
+alpha_base = 0.4;  beta_base = 0.018;
+delta_base = 0.023; gamma_base = 0.8;
+
+n_iter = 10000; % Número de iteraciones
+mejor_R2 = -Inf; % Iniciar con un R2 muy bajo
+parametros_optimos = [alpha_base, beta_base, delta_base, gamma_base];
+
+%% Iterar para encontrar los mejores parámetros
+for i = 1:n_iter
+    % Modificar parámetros ligeramente en cada iteración
+    alpha = alpha_base + (rand - 0.5) * 0.1; % Variar entre ±0.05
+    beta  = beta_base  + (rand - 0.5) * 0.01; % Variar entre ±0.005
+    delta = delta_base + (rand - 0.5) * 0.01; % Variar entre ±0.005
+    gamma = gamma_base + (rand - 0.5) * 0.1;  % Variar entre ±0.05
+
+    % Definir funciones del sistema con los parámetros actuales
+    f = @(t, x, y) x * (alpha - beta * y); % Ecuación para los conejos
+    g = @(t, x, y) y * (delta * x - gamma); % Ecuación para los linces
+
+    % Aplicar el método RK4
+    z = RK4_sist(f, g, a, b, x0, y0, h);
+
+    % Extraer resultados
+    t = z(:, 1);
+    x_simulado = z(:, 2);
+    y_simulado = z(:, 3);
+
+    % Calcular coeficiente de determinación R2 para conejos y linces
+    R2_conejos = 1 - sum((conejos - x_simulado).^2) / sum((conejos - mean(conejos)).^2);
+    R2_linces  = 1 - sum((linces - y_simulado).^2) / sum((linces - mean(linces)).^2);
+    
+    % R2 combinado (promedio de ambos)
+    R2_total = (R2_conejos + R2_linces) / 2;
+
+    % Si el R2 es mejor, actualizar los parámetros óptimos
+    if R2_total > mejor_R2
+        mejor_R2 = R2_total;
+        parametros_optimos = [alpha, beta, delta, gamma];
+        t_mejor = t; % Guardar el tiempo correspondiente
+        x_mejor = x_simulado; % Guardar la mejor simulación de conejos
+        y_mejor = y_simulado; % Guardar la mejor simulación de linces
+    end
+end
+
+%% Mostrar los mejores parámetros encontrados
+disp('Mejores parámetros encontrados:');
+disp(['Alpha: ', num2str(parametros_optimos(1))]);
+disp(['Beta: ', num2str(parametros_optimos(2))]);
+disp(['Delta: ', num2str(parametros_optimos(3))]);
+disp(['Gamma: ', num2str(parametros_optimos(4))]);
+disp(['Mejor R2 obtenido: ', num2str(mejor_R2)]);
+
+%% Graficar la mejor simulación junto a los datos reales
+figure;
+hold on;
+plot(anios, conejos, 'bo', 'MarkerFaceColor', 'b', 'DisplayName', 'Datos Conejos');
+plot(anios, linces, 'ro', 'MarkerFaceColor', 'r', 'DisplayName', 'Datos Linces');
+plot(t_mejor, x_mejor, 'b-', 'LineWidth', 1.5, 'DisplayName', 'Mejor Simulación Conejos');
+plot(t_mejor, y_mejor, 'r-', 'LineWidth', 1.5, 'DisplayName', 'Mejor Simulación Linces');
+title('Mejor Ajuste del Modelo Lotka-Volterra');
+xlabel('Tiempo (años)');
+ylabel('Población (miles)');
+legend;
+grid on;
+hold off;
