@@ -30,12 +30,13 @@ y = z(:, 3); % Población de linces simulada
 
 %% Graficar los resultados
 figure;
+plot(anios, conejos, 'bo-', 'LineWidth', 2, 'MarkerSize', 8, 'DisplayName', 'Datos Conejos');
 hold on;
-plot(t, x, 'b-', 'LineWidth', 1.5); % Conejos
-plot(t, y, 'r-', 'LineWidth', 1.5); % Linces
-title('Evolución de Poblaciones - Método RK4');
-xlabel('Tiempo (años)');
-ylabel('Población (miles)');
-legend('Presas (Conejos)', 'Depredadores (Linces)');
+plot(anios, linces, 'ro-', 'LineWidth', 2, 'MarkerSize', 8, 'DisplayName', 'Datos Linces');
+plot(t, x, 'b--', 'LineWidth', 2, 'DisplayName', 'RK4 Conejos');
+plot(t, y, 'r--', 'LineWidth', 2, 'DisplayName', 'RK4 Linces');
+xlabel('Año');
+ylabel('Población (miles)');
+legend;
+title('Dinámica Presa-Depredador (Conejos vs Linces) con RK4');
 grid on;
-hold off;
