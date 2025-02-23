@@ -12,12 +12,12 @@ h = 1;
 
 %% Crear combinaciones de parámetros a probar
 parametros = [
-    0.4,  0.018,  0.023,  0.8;  % Caso 1: Valores base
-    0.4,  0.025,  0.023,  0.8;  % Caso 2: Mayor depredación (beta aumenta)
-    0.4,  0.018,  0.023,  0.6;  % Caso 3: Menor mortalidad de linces (gamma baja)
-    0.6,  0.018,  0.023,  0.8;  % Caso 4: Mayor crecimiento de presas (alpha sube)
-    0.5,  0.020,  0.025,  0.7   % Caso 5: Variaciones combinadas
+    0.4,  0.025,  0.023,  0.8;   % Caso 1: Mayor depredación (beta aumenta)
+    0.4,  0.018,  0.023,  0.6;   % Caso 2: Menor mortalidad de linces (gamma baja)
+    0.6,  0.018,  0.023,  0.8;   % Caso 3: Mayor crecimiento de presas (alpha sube)
+    0.44923,  0.022739,  0.027492,  0.84916   % Caso 4: Parámetros optimizados para mejor R2
 ];
+
 
 %% Simulación para cada conjunto de parámetros
 for i = 1:size(parametros,1)
