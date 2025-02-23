@@ -36,7 +36,7 @@ error_x_rp = abs((conejos - x) ./ conejos) * 100;
 error_y_rp = abs((linces - y) ./ linces) * 100;
 
 % Crear tabla con los errores
-E = table(anos, conejos, x, error_x_a, error_x_r, error_x_rp, ...
+E = table(anios, conejos, x, error_x_a, error_x_r, error_x_rp, ...
                 linces, y, error_y_a, error_y_r, error_y_rp, ...
                 'VariableNames', {'Año', 'Conejos_Real', 'Conejos_RK4', ...
                                   'Error_Abs_Conejos', 'Error_Rel_Conejos', 'Error_Rel_Porc_Conejos', ...
@@ -57,9 +57,9 @@ R2_y = 1 - (SSE_y / SST_y)
 
 %% Graficar los resultados
 figure;
-plot(anos, conejos, 'bo-', 'LineWidth', 2, 'MarkerSize', 8, 'DisplayName', 'Datos Conejos');
+plot(anios, conejos, 'bo-', 'LineWidth', 2, 'MarkerSize', 8, 'DisplayName', 'Datos Conejos');
 hold on;
-plot(anos, linces, 'ro-', 'LineWidth', 2, 'MarkerSize', 8, 'DisplayName', 'Datos Linces');
+plot(anios, linces, 'ro-', 'LineWidth', 2, 'MarkerSize', 8, 'DisplayName', 'Datos Linces');
 plot(t, x, 'b--', 'LineWidth', 2, 'DisplayName', 'RK4 Conejos');
 plot(t, y, 'r--', 'LineWidth', 2, 'DisplayName', 'RK4 Linces');
 xlabel('Año');
