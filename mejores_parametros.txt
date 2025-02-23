@@ -5,7 +5,7 @@ linces = [4, 6.1, 9.8, 35.2, 59.4, 41.7, 19, 13, 8.3, 9.1, 7.4, 8, 12.3, 19.5, 4
 
 %% Valores iniciales
 a = 1;  % Año inicial
-b = 15; % Año final
+b = 21; % Año final
 x0 = 40; % Conejos iniciales
 y0 = 5;  % Linces iniciales
 h = 1;   % Paso de integración
