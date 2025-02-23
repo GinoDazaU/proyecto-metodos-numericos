@@ -1,31 +1,113 @@
-%% Definir los años y datos iniciales
+%% Datos Históricos
 anios = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]';
 conejos = [30, 47.2, 70.2, 77.4, 36.3, 20.6, 18.1, 21.4, 22, 25.4, 27.1, 40.3, 57, 76.6, 52.3, 19.5, 11.2, 7.6, 14.6, 16.2, 24.7]';
 linces = [4, 6.1, 9.8, 35.2, 59.4, 41.7, 19, 13, 8.3, 9.1, 7.4, 8, 12.3, 19.5, 45.7, 51.1, 29.7, 15.8, 9.7, 10.1, 8.6]';
 
 %% Valores iniciales
 a = 1; 
-b = 30;
+b = 25;
 x0 = 40; % Conejos iniciales
 y0 = 5;  % Linces iniciales
 h = 1;
 
-%% Crear combinaciones de parámetros a probar
-parametros = [
-    0.44923,  0.022739,  0.027492,  0.84916   % Caso 1: Parámetros optimizados para mejor R2
-    0.4,  0.025,  0.023,  0.8;   % Caso 2: Mayor depredación (beta aumenta)
-    0.4,  0.018,  0.023,  0.4;   % Caso 3: Menor mortalidad de linces (gamma baja)
-    0.7,  0.018,  0.023,  0.8;   % Caso 4: Mayor crecimiento de presas (alpha sube)
-];
+%% Parámetros originales del modelo Lotka-Volterra
+alpha_original = 0.4;  
+beta_original = 0.018;
+delta_original = 0.023;
+gamma_original = 0.8;
 
+%% Parámetros mejorados tras optimización de R2
+alpha_opt = 0.44923;  
+beta_opt = 0.022739;
+delta_opt = 0.027492;
+gamma_opt = 0.84916;
 
-%% Simulación para cada conjunto de parámetros
-for i = 1:size(parametros,1)
-    % Extraer valores de parámetros para el caso actual
-    alpha = parametros(i,1);
-    beta = parametros(i,2);
-    delta = parametros(i,3);
-    gamma = parametros(i,4);
+%% Funciones para los parámetros originales
+f_orig = @(t, x, y) x * (alpha_original - beta_original * y); 
+g_orig = @(t, x, y) y * (delta_original * x - gamma_original); 
+
+%% Aplicar el método RK4 con parámetros originales
+z_orig = RK4_sist(f_orig, g_orig, a, b, x0, y0, h);
+t = z_orig(:, 1);
+x_orig = z_orig(:, 2); % Población de conejos simulada
+y_orig = z_orig(:, 3); % Población de linces simulada
+
+%% Calcular R2 con parámetros originales
+R2_conejos_orig = 1 - sum((conejos - x_orig(1:length(conejos))).^2) / sum((conejos - mean(conejos)).^2);
+R2_linces_orig = 1 - sum((linces - y_orig(1:length(linces))).^2) / sum((linces - mean(linces)).^2);
+R2_total_orig = (R2_conejos_orig + R2_linces_orig) / 2;
+
+%% Mostrar R2 en consola
+disp('Parámetros originales:');
+disp(['R2 Conejos: ', num2str(R2_conejos_orig)]);
+disp(['R2 Linces: ', num2str(R2_linces_orig)]);
+disp(['R2 Total: ', num2str(R2_total_orig)]);
+
+%% Graficar la evolución con parámetros originales
+figure;
+hold on;
+plot(anios, conejos, 'bo', 'MarkerFaceColor', 'b', 'DisplayName', 'Datos Conejos');
+plot(anios, linces, 'ro', 'MarkerFaceColor', 'r', 'DisplayName', 'Datos Linces');
+plot(t, x_orig, 'b-', 'LineWidth', 1.5, 'DisplayName', 'Modelo RK4 Conejos');
+plot(t, y_orig, 'r-', 'LineWidth', 1.5, 'DisplayName', 'Modelo RK4 Linces');
+xlabel('Año');
+ylabel('Población (miles)');
+legend;
+title('Modelo RK4 con Parámetros Originales');
+grid on;
+hold off;
+
+%% Funciones para los parámetros optimizados
+f_opt = @(t, x, y) x * (alpha_opt - beta_opt * y); 
+g_opt = @(t, x, y) y * (delta_opt * x - gamma_opt); 
+
+%% Aplicar el método RK4 con parámetros optimizados
+z_opt = RK4_sist(f_opt, g_opt, a, b, x0, y0, h);
+x_opt = z_opt(:, 2); % Población de conejos simulada con parámetros optimizados
+y_opt = z_opt(:, 3); % Población de linces simulada con parámetros optimizados
+
+%% Calcular R2 con parámetros optimizados
+R2_conejos_opt = 1 - sum((conejos - x_opt(1:length(conejos))).^2) / sum((conejos - mean(conejos)).^2);
+R2_linces_opt = 1 - sum((linces - y_opt(1:length(linces))).^2) / sum((linces - mean(linces)).^2);
+R2_total_opt = (R2_conejos_opt + R2_linces_opt) / 2;
+
+%% Mostrar R2 en consola
+disp('Parámetros optimizados:');
+disp(['R2 Conejos: ', num2str(R2_conejos_opt)]);
+disp(['R2 Linces: ', num2str(R2_linces_opt)]);
+disp(['R2 Total: ', num2str(R2_total_opt)]);
+
+%% Graficar la evolución con parámetros optimizados junto con los datos históricos
+figure;
+hold on;
+plot(anios, conejos, 'bo', 'MarkerFaceColor', 'b', 'DisplayName', 'Datos Conejos');
+plot(anios, linces, 'ro', 'MarkerFaceColor', 'r', 'DisplayName', 'Datos Linces');
+plot(t, x_opt, 'b-', 'LineWidth', 1.5, 'DisplayName', 'RK4 Conejos (Opt)');
+plot(t, y_opt, 'r-', 'LineWidth', 1.5, 'DisplayName', 'RK4 Linces (Opt)');
+xlabel('Año');
+ylabel('Población (miles)');
+legend;
+title('Modelo RK4 con Parámetros Optimizados');
+grid on;
+hold off;
+
+%% Definir diferentes escenarios de parámetros
+casos = {
+    'Aumento de Tasa de Depredación', 0.4, 0.025, 0.023, 0.8;
+    'Reducción de Mortalidad de Linces', 0.4, 0.018, 0.023, 0.4;
+    'Aumento de Tasa de Crecimiento de Presas', 0.7, 0.018, 0.023, 0.8
+};
+
+b = 30;
+
+%% Graficar cada escenario por separado
+for i = 1:size(casos,1)
+    % Extraer valores del caso actual
+    caso_nombre = casos{i,1};
+    alpha = casos{i,2};
+    beta = casos{i,3};
+    delta = casos{i,4};
+    gamma = casos{i,5};
     
     % Definir funciones del sistema con los parámetros actuales
     f = @(t, x, y) x * (alpha - beta * y); % Ecuación para los conejos
@@ -44,10 +126,13 @@ for i = 1:size(parametros,1)
     hold on;
     plot(t, x, 'b-', 'LineWidth', 1.5); % Conejos
     plot(t, y, 'r-', 'LineWidth', 1.5); % Linces
-    title(['Evolución Poblacional - Caso ', num2str(i)]);
+    title(caso_nombre);
     xlabel('Tiempo (años)');
     ylabel('Población (miles)');
     legend('Presas (Conejos)', 'Depredadores (Linces)');
     grid on;
     hold off;
+    
+    % Guardar la imagen con un nombre único
+    saveas(gcf, sprintf('caso_%d.png', i));
 end
