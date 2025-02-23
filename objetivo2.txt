@@ -5,17 +5,17 @@ linces = [4, 6.1, 9.8, 35.2, 59.4, 41.7, 19, 13, 8.3, 9.1, 7.4, 8, 12.3, 19.5, 4
 
 %% Valores iniciales
 a = 1; 
-b = 21;
+b = 30;
 x0 = 40; % Conejos iniciales
 y0 = 5;  % Linces iniciales
 h = 1;
 
 %% Crear combinaciones de parámetros a probar
 parametros = [
-    0.4,  0.025,  0.023,  0.8;   % Caso 1: Mayor depredación (beta aumenta)
-    0.4,  0.018,  0.023,  0.6;   % Caso 2: Menor mortalidad de linces (gamma baja)
-    0.6,  0.018,  0.023,  0.8;   % Caso 3: Mayor crecimiento de presas (alpha sube)
-    0.44923,  0.022739,  0.027492,  0.84916   % Caso 4: Parámetros optimizados para mejor R2
+    0.44923,  0.022739,  0.027492,  0.84916   % Caso 1: Parámetros optimizados para mejor R2
+    0.4,  0.025,  0.023,  0.8;   % Caso 2: Mayor depredación (beta aumenta)
+    0.4,  0.018,  0.023,  0.4;   % Caso 3: Menor mortalidad de linces (gamma baja)
+    0.7,  0.018,  0.023,  0.8;   % Caso 4: Mayor crecimiento de presas (alpha sube)
 ];
 
 
