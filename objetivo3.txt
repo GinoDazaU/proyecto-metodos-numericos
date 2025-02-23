@@ -1,0 +1,84 @@
+%% Datos Históricos
+anios = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]';
+conejos = [30, 47.2, 70.2, 77.4, 36.3, 20.6, 18.1, 21.4, 22, 25.4, 27.1, 40.3, 57, 76.6, 52.3, 19.5, 11.2, 7.6, 14.6, 16.2, 24.7]';
+linces = [4, 6.1, 9.8, 35.2, 59.4, 41.7, 19, 13, 8.3, 9.1, 7.4, 8, 12.3, 19.5, 45.7, 51.1, 29.7, 15.8, 9.7, 10.1, 8.6]';
+
+%% Valores iniciales
+a = 1; 
+b = 25;
+x0 = 40; % Conejos iniciales
+y0 = 5;  % Linces iniciales
+h = 1;
+
+%% Parámetros originales del modelo Lotka-Volterra
+alpha_original = 0.4;  
+beta_original = 0.018;
+delta_original = 0.023;
+gamma_original = 0.8;
+
+%% Parámetros mejorados tras optimización de R2
+alpha_opt = 0.44923;  
+beta_opt = 0.022739;
+delta_opt = 0.027492;
+gamma_opt = 0.84916;
+
+%% Función para ejecutar RK4 y calcular R2
+function [t, x, y, R2_total] = ejecutar_modelo(alpha, beta, delta, gamma, a, b, x0, y0, h, conejos, linces)
+    % Definir funciones del sistema
+    f = @(t, x, y) x * (alpha - beta * y); % Ecuación para los conejos
+    g = @(t, x, y) y * (delta * x - gamma); % Ecuación para los linces
+
+    % Aplicar el método RK4
+    z = RK4_sist(f, g, a, b, x0, y0, h);
+
+    % Extraer resultados
+    t = z(:, 1);
+    x = z(:, 2);
+    y = z(:, 3);
+
+    % Calcular R2
+    R2_conejos = 1 - sum((conejos - x(1:length(conejos))).^2) / sum((conejos - mean(conejos)).^2);
+    R2_linces  = 1 - sum((linces - y(1:length(linces))).^2) / sum((linces - mean(linces)).^2);
+    R2_total = (R2_conejos + R2_linces) / 2;
+    
+    % Mostrar resultados en consola
+    fprintf('\nR2 Conejos: %.5f\n', R2_conejos);
+    fprintf('R2 Linces: %.5f\n', R2_linces);
+    fprintf('R2 Total: %.5f\n', R2_total);
+end
+
+%% Simulación con parámetros originales
+[t1, x1, y1, R2_original] = ejecutar_modelo(alpha_original, beta_original, delta_original, gamma_original, a, b, x0, y0, h, conejos, linces);
+
+%% Simulación con parámetros optimizados
+[t2, x2, y2, R2_opt] = ejecutar_modelo(alpha_opt, beta_opt, delta_opt, gamma_opt, a, b, x0, y0, h, conejos, linces);
+
+%% Gráfico 1: Comparación con parámetros originales
+figure;
+hold on;
+plot(anios, conejos, 'bo', 'MarkerFaceColor', 'b', 'DisplayName', 'Datos Conejos');
+plot(anios, linces, 'ro', 'MarkerFaceColor', 'r', 'DisplayName', 'Datos Linces');
+plot(t1, x1, 'b-', 'LineWidth', 1.5, 'DisplayName', 'Modelo RK4 Conejos');
+plot(t1, y1, 'r-', 'LineWidth', 1.5, 'DisplayName', 'Modelo RK4 Linces');
+title('Modelo RK4 con Parámetros Originales');
+xlabel('Año');
+ylabel('Población (miles)');
+legend;
+grid on;
+hold off;
+saveas(gcf, 'parte3/comparacion_originales.png'); % Guardar imagen
+
+%% Gráfico 2: Comparación con parámetros optimizados
+figure;
+hold on;
+plot(anios, conejos, 'bo', 'MarkerFaceColor', 'b', 'DisplayName', 'Datos Conejos');
+plot(anios, linces, 'ro', 'MarkerFaceColor', 'r', 'DisplayName', 'Datos Linces');
+plot(t2, x2, 'b-', 'LineWidth', 1.5, 'DisplayName', 'RK4 Conejos (Opt)');
+plot(t2, y2, 'r-', 'LineWidth', 1.5, 'DisplayName', 'RK4 Linces (Opt)');
+title('Modelo RK4 con Parámetros Optimizados');
+xlabel('Año');
+ylabel('Población (miles)');
+legend;
+grid on;
+hold off;
+saveas(gcf, 'parte3/comparacion_optimizados.png'); % Guardar imagen
